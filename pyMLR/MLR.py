@@ -112,27 +112,27 @@ def djf(y, t1,t2):
 
 def mam(y, t1,t2):
     mons = [3,4,5]
-    y1 = y.sel(time=y.time.dt.month.isin([mons])).resample(time='YS').mean(dim='time')
+    y1 = y.sel(time=y.time.dt.month.isin([mons])).resample(time='YS').mean(dim='time').sel(time=slice(''+str(t1)+'',''+str(t2)+''))
     return y1
 
 def jjas(y, t1,t2):
     mons = [6,7,8,9]
-    y1 = y.sel(time=y.time.dt.month.isin([mons])).resample(time='YS').mean(dim='time')
+    y1 = y.sel(time=y.time.dt.month.isin([mons])).resample(time='YS').mean(dim='time').sel(time=slice(''+str(t1)+'',''+str(t2)+''))
     return y1
 
 def jja(y, t1,t2):
     mons = [6,7,8]
-    y1 = y.sel(time=y.time.dt.month.isin([mons])).resample(time='YS').mean(dim='time')
+    y1 = y.sel(time=y.time.dt.month.isin([mons])).resample(time='YS').mean(dim='time').sel(time=slice(''+str(t1)+'',''+str(t2)+''))
     return y1
 
 def on(y, t1,t2):
     mons = [10,11]
-    y1 = y.sel(time=y.time.dt.month.isin([mons])).resample(time='YS').mean(dim='time')
+    y1 = y.sel(time=y.time.dt.month.isin([mons])).resample(time='YS').mean(dim='time').sel(time=slice(''+str(t1)+'',''+str(t2)+''))
     return y1
 
 def son(y, t1,t2):
     mons = [9,10,11]
-    y1 = y.sel(time=y.time.dt.month.isin([mons])).resample(time='YS').mean(dim='time')
+    y1 = y.sel(time=y.time.dt.month.isin([mons])).resample(time='YS').mean(dim='time').sel(time=slice(''+str(t1)+'',''+str(t2)+''))
     return y1
 
 
