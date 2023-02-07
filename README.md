@@ -4,7 +4,7 @@ A detailed description with example to use the package is available on the jupyt
 
 INSTALLATION:
 
-Download the code directory
+Download the code directory as zip and extract it.
 
 1. cd pyMLR
 
