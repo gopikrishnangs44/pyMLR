@@ -4,6 +4,8 @@ import numpy as np
 import salem
 import pandas as pd
 import statsmodels.api as sm
+from LOTUS_regression.predictors import load_data
+import LOTUS_regression.predictors as predictors
 import scipy.stats
 from dominance_analysis import Dominance_Datasets
 from dominance_analysis import Dominance
@@ -11,6 +13,9 @@ import matplotlib.pyplot as plt
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 
+def norm(a,time):
+    a = a.sel(time=time)
+    return (a-a.mean())/a.std()
 def norm_1D(path,time):
     a = xr.open_dataarray(path).sel(time=time)
     return (a-a.mean())/a.std()
@@ -27,7 +32,6 @@ def reg_m(y, x):
         X = sm.add_constant(np.column_stack((ele, X)))
     results = sm.OLS(y, X).fit()
     return results
-
 ### mlr_out returns model, coefficiants, constant ,r_sq and adj_rsq 
 def mlr_out(norm_y,norm_vars):
     res = reg_m(np.array(norm_y),norm_vars).summary()
@@ -53,6 +57,22 @@ def mlr_out(norm_y,norm_vars):
     return model, np.array(coeffs), cons,  r_sq, adj_rsq, res , print('\nR_squared = '+str(r_sq)+'\nadj_Rsq = '+str(adj_rsq)+'\n "om!"')
 
 
+def mlr_contributions(y,mlr_model,v0):
+    k, kk = [],[]
+    for i in range(0,len(v0)):
+        for j in range(0,len(v0)):
+            if i!=j:
+                k.append(v0[j])
+            else:
+                pass
+        kk.append(k)
+        k=[]
+    cont = []
+    for h in range(len(kk)):
+        mlr_model1 = mlr_out(y,kk[h])
+        cont.append(((mlr_model1[6].ssr-mlr_model[6].ssr)/mlr_model1[6].ssr)*100)
+    return cont
+
 def mlr_dominance(dependent_var,predictors_list,list_of_header_names,mlr_model):
     varss1 = []
     varss = predictors_list
@@ -68,6 +88,53 @@ def mlr_dominance(dependent_var,predictors_list,list_of_header_names,mlr_model):
     for i in ee:
         cont.append((ee[i]/mlr_model[3])*100)
     return cont
+
+#Seasonal
+
+def time_series_2D(path, shapefile_xarray, time, dims):
+    try:
+        return xr.open_dataarray(path).sel(time=time).salem.roi(shape=shapefile_xarray).mean(dim=dims).interpolate_na(dim='time')
+    except:
+        return xr.open_dataarray(path).sel(time=time).mean(dim=dims).interpolate_na(dim='time')
+def time_series_1D(path, time):
+    return xr.open_dataarray(path).sel(time=time).interpolate_na(dim='time')
+
+def djf(y, t1,t2):
+    mons = [12,1,2]
+    y1 = y.sel(time=y.time.dt.month.isin([mons]))[2:]
+    n = len(mons)
+    nn = int(len(y1)/n)
+    y_new = y1[0:(nn*n)]
+    y1 = np.average(np.array(y_new).reshape(-1, 3), axis=1)
+    data = xr.DataArray(y1, coords=[pd.date_range('01-01-'+str(t1)+'','01-01-'+str(int(t2)-1)+'',freq='YS')], dims=['time'])
+    return data
+
+
+def mam(y, t1,t2):
+    mons = [3,4,5]
+    y1 = y.sel(time=y.time.dt.month.isin([mons])).resample(time='YS').mean(dim='time')
+    return y1
+
+def jjas(y, t1,t2):
+    mons = [6,7,8,9]
+    y1 = y.sel(time=y.time.dt.month.isin([mons])).resample(time='YS').mean(dim='time')
+    return y1
+
+def jja(y, t1,t2):
+    mons = [6,7,8]
+    y1 = y.sel(time=y.time.dt.month.isin([mons])).resample(time='YS').mean(dim='time')
+    return y1
+
+def on(y, t1,t2):
+    mons = [10,11]
+    y1 = y.sel(time=y.time.dt.month.isin([mons])).resample(time='YS').mean(dim='time')
+    return y1
+
+def son(y, t1,t2):
+    mons = [9,10,11]
+    y1 = y.sel(time=y.time.dt.month.isin([mons])).resample(time='YS').mean(dim='time')
+    return y1
+
 
 ##############Multicollinearity
 
@@ -88,7 +155,7 @@ def correlation_matrix(var,headss,path_and_filename_to_save_the_output,fs,figsiz
             ax.text(j, i, ss, ha='center', va='center', fontsize=fs,
                     bbox=dict(boxstyle='round', facecolor='white',alpha=0.75, edgecolor='black',linewidth=0.2), )
     plt.colorbar(cs, cax=cax)
-    fig.savefig(''+str(path_and_filename)+'', dpi=500, bbox_inches='tight', facecolor='white')
+    fig.savefig(''+str(path_and_filename_to_save_the_output)+'', dpi=500, bbox_inches='tight', facecolor='white')
     plt.show()
 
 
@@ -104,6 +171,6 @@ def VIF(var, headss):
 
 
 
-
+#EXAMPLE FOR USING THE FUNCTION
 
 
