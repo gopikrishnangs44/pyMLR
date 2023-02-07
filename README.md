@@ -8,4 +8,4 @@ Download the code directory
 
 1. cd pyMLR
 
-2. Python setup.py install
+2. pip install .
