@@ -99,15 +99,27 @@ def time_series_2D(path, shapefile_xarray, time, dims):
 def time_series_1D(path, time):
     return xr.open_dataarray(path).sel(time=time).interpolate_na(dim='time')
 
-def djf(y, t1,t2):
+def djf(y,t1,t2): 
     mons = [12,1,2]
+    y = y.sel(time=slice(''+str(t1)+'',''+str(t2)+''))
     y1 = y.sel(time=y.time.dt.month.isin([mons]))[2:]
     n = len(mons)
     nn = int(len(y1)/n)
     y_new = y1[0:(nn*n)]
-    y1 = np.average(np.array(y_new).reshape(-1, 3), axis=1)
-    data = xr.DataArray(y1, coords=[pd.date_range('01-01-'+str(t1)+'','01-01-'+str(int(t2)-1)+'',freq='YS')], dims=['time'])
+    if y_new.ndim!=1:
+        oi = []
+        for i1 in range(len(y_new.lev)):
+            xa = y_new.isel(lev=i1)
+            xa1 = np.average(np.array(xa).reshape(-1, 3), axis=1)
+            oi.append(xa1)
+        data = xr.DataArray(oi, coords=[y_new.lev, pd.date_range('01-01-'+str(t1)+'','01-01-'+str(int(t2)-1)+'',freq='YS')], dims=['lev','time'])
+        oi=[]
+    else:
+        y1 = np.average(np.array(y_new).reshape(-1, 3), axis=1)
+        data = xr.DataArray(y1, coords=[pd.date_range('01-01-'+str(t1)+'','01-01-'+str(int(t2)-1)+'',freq='YS')], dims=['time'])
     return data
+
+
 
 
 def mam(y, t1,t2):
