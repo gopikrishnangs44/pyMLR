@@ -21,7 +21,7 @@ def norm_std_1D(path,time):
     return (a-a.mean())/a.std()
 def norm_1D(path,time):
     a = xr.open_dataarray(path).sel(time=time)
-    return (a-a.mean())/a.std()
+    return (a-a.mean())
 def lotus_pred(variable,time):
     predictors_pwlt = load_data('pred_baseline_pwlt.csv')
     return xr.DataArray(predictors_pwlt[''+str(variable)+'']).sel(time=time)
