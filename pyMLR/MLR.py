@@ -16,15 +16,21 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 def norm(a,time):
     a = a.sel(time=time)
     return (a-a.mean())/a.std()
+def norm_std_1D(path,time):
+    a = xr.open_dataarray(path).sel(time=time)
+    return (a-a.mean())/a.std()
 def norm_1D(path,time):
     a = xr.open_dataarray(path).sel(time=time)
     return (a-a.mean())/a.std()
 def lotus_pred(variable,time):
     predictors_pwlt = load_data('pred_baseline_pwlt.csv')
     return xr.DataArray(predictors_pwlt[''+str(variable)+'']).sel(time=time)
-def norm_2D(path,shapefile_xarray,time,dims):
+def norm_std_2D(path,shapefile_xarray,time,dims):
     a = xr.open_dataarray(path).sel(time=time).salem.roi(shape=shapefile_xarray).mean(dim=dims).interpolate_na(dim='time')
     return (a-a.mean())/a.std()
+def norm_2D(path,shapefile_xarray,time,dims):
+    a = xr.open_dataarray(path).sel(time=time).salem.roi(shape=shapefile_xarray).mean(dim=dims).interpolate_na(dim='time')
+    return (a-a.mean())
 def reg_m(y, x):
     ones = np.ones(len(x[0]))
     X = sm.add_constant(np.column_stack((x[0], ones)))
