@@ -40,9 +40,6 @@ def reg_m(y, x):
     return results
 ### mlr_out returns model, coefficiants, constant ,r_sq and adj_rsq 
 def mlr_out(norm_y,norm_vars):
-    norm_y = ds11.Ozone
-    norm_vars = pred
-
     res = reg_m(np.array(norm_y),norm_vars).summary()
     aa = pd.DataFrame(res.tables[1][1:])
     bb,cc = pd.DataFrame(aa[1]), pd.DataFrame(aa[4])
