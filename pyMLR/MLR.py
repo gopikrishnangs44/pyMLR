@@ -40,15 +40,20 @@ def reg_m(y, x):
     return results
 ### mlr_out returns model, coefficiants, constant ,r_sq and adj_rsq 
 def mlr_out(norm_y,norm_vars):
+    norm_y = ds11.Ozone
+    norm_vars = pred
+
     res = reg_m(np.array(norm_y),norm_vars).summary()
     aa = pd.DataFrame(res.tables[1][1:])
-    bb = pd.DataFrame(aa[1])
+    bb,cc = pd.DataFrame(aa[1]), pd.DataFrame(aa[4])
     bb.to_csv('test_mlr_corr_coefs.csv', header=None)
+    cc.to_csv('test_mlr_p_values.csv', header=None)
     kk = pd.read_csv('test_mlr_corr_coefs.csv', header=None)
     pd.DataFrame((res.tables[0][0])).to_csv('test_mlr_r2.csv')
     pd.DataFrame((res.tables[0][1])).to_csv('test_mlr_adj_r2.csv')
     r = pd.read_csv('test_mlr_r2.csv', header=None)
     adj_r = pd.read_csv('test_mlr_adj_r2.csv', header=None)
+    p_val = pd.read_csv('test_mlr_p_values.csv', header=None)
     cons = kk[1][len(kk[1])-1]
     coeffs = kk[1][:-1]
     coeffs = coeffs[::-1]
@@ -60,7 +65,8 @@ def mlr_out(norm_y,norm_vars):
     model = cons + mo1
     r_sq = float(r[1][4][3:])
     adj_rsq = float(adj_r[1][4][3:])
-    return model, np.array(coeffs), cons,  r_sq, adj_rsq, res , print('\nR_squared = '+str(r_sq)+'\nadj_Rsq = '+str(adj_rsq)+'\n "om!"')
+    p_values, p_val_cons = p_val[1][::-1][1:], p_val[1][len(p_val[1])-1]
+    return model, np.array(coeffs), cons,  r_sq, adj_rsq, res, p_values, p_val_cons, print('\nR_squared = '+str(r_sq)+'\nadj_Rsq = '+str(adj_rsq)+'\n "om!"')
 
 
 def mlr_contributions(y,mlr_model,v0):
