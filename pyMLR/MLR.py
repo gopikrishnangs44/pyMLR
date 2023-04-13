@@ -62,7 +62,7 @@ def mlr_out(norm_y,norm_vars):
     model = cons + mo1
     r_sq = float(r[1][4][3:])
     adj_rsq = float(adj_r[1][4][3:])
-    p_values, p_val_cons = p_val[1][::-1][1:], p_val[1][len(p_val[1])-1]
+    p_values, p_val_cons = np.array(p_val[1][:-1][::-1]), p_val[1][len(p_val[1])-1]
     return model, np.array(coeffs), cons,  r_sq, adj_rsq, res, p_values, p_val_cons, print('\nR_squared = '+str(r_sq)+'\nadj_Rsq = '+str(adj_rsq)+'\n "om!"')
 
 
