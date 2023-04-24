@@ -31,6 +31,10 @@ def norm_std_2D(path,shapefile_xarray,time,dims):
 def norm_2D(path,shapefile_xarray,time,dims):
     a = xr.open_dataarray(path).sel(time=time).salem.roi(shape=shapefile_xarray).mean(dim=dims).interpolate_na(dim='time')
     return (a-a.mean())
+def norm_std_2D(path,shapefile_xarray,time,dims):
+    a = xr.open_dataarray(path).sel(time=time).salem.roi(shape=shapefile_xarray).mean(dim=dims).interpolate_na(dim='time')
+    return (a-a.mean()/a.std())
+
 def reg_m(y, x):
     ones = np.ones(len(x[0]))
     X = sm.add_constant(np.column_stack((x[0], ones)))
