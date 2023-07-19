@@ -46,15 +46,17 @@ def reg_m(y, x):
 def mlr_out(norm_y,norm_vars):
     res = reg_m(np.array(norm_y),norm_vars).summary()
     aa = pd.DataFrame(res.tables[1][1:])
-    bb,cc = pd.DataFrame(aa[1]), pd.DataFrame(aa[4])
+    bb,cc,dd = pd.DataFrame(aa[1]), pd.DataFrame(aa[4]), pd.DataFrame(aa[2])
     bb.to_csv('test_mlr_corr_coefs.csv', header=None)
     cc.to_csv('test_mlr_p_values.csv', header=None)
+    dd.to_csv('test_mlr_stderr.csv', header=None)
     kk = pd.read_csv('test_mlr_corr_coefs.csv', header=None)
     pd.DataFrame((res.tables[0][0])).to_csv('test_mlr_r2.csv')
     pd.DataFrame((res.tables[0][1])).to_csv('test_mlr_adj_r2.csv')
     r = pd.read_csv('test_mlr_r2.csv', header=None)
     adj_r = pd.read_csv('test_mlr_adj_r2.csv', header=None)
     p_val = pd.read_csv('test_mlr_p_values.csv', header=None)
+    stderr = pd.read_csv('test_mlr_stderr.csv', header=None)
     cons = kk[1][len(kk[1])-1]
     coeffs = kk[1][:-1]
     coeffs = coeffs[::-1]
@@ -66,8 +68,8 @@ def mlr_out(norm_y,norm_vars):
     model = cons + mo1
     r_sq = float(r[1][4][3:])
     adj_rsq = float(adj_r[1][4][3:])
-    p_values, p_val_cons = np.array(p_val[1][:-1][::-1]), p_val[1][len(p_val[1])-1]
-    return model, np.array(coeffs), cons,  r_sq, adj_rsq, res, p_values, p_val_cons, print('\nR_squared = '+str(r_sq)+'\nadj_Rsq = '+str(adj_rsq)+'\n "om!"')
+    p_values, p_val_cons, stderr_v, stderr_co = np.array(p_val[1][:-1][::-1]), p_val[1][len(p_val[1])-1], np.array(stderr[1][:-1][::-1]), stderr[1][len(p_val[1])-1]
+    return model, np.array(coeffs), cons,  r_sq, adj_rsq, res, p_values, p_val_cons, stderr_v, stderr_co, print('\nR_squared = '+str(r_sq)+'\nadj_Rsq = '+str(adj_rsq)+'\n "om!"')
 
 
 def mlr_contributions(y,mlr_model,v0):
