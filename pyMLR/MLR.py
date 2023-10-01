@@ -173,15 +173,16 @@ def correlation_matrix(var,headss,path_and_filename_to_save_the_output,fs,figsiz
     cs = ax.matshow(matrix, cmap='RdYlGn_r', vmin=-1, vmax=1)
     ax.set_xticks(range(0,len(headss)))
     ax.set_yticks(range(0,len(headss)))
-    ax.set_xticklabels(headss)
-    ax.set_yticklabels(headss)
-    cax = plt.axes([0.92,0.18,0.02,0.65])
+    ax.set_xticklabels(headss, fontsize=fs)
+    ax.set_yticklabels(headss, fontsize=fs)
+    cax = plt.axes([0.92,0.18,0.04,0.65])
     for (i, j), z in np.ndenumerate(matrix):
         ss = '{:0.2f}'.format(z)
         if ss != 'nan':
             ax.text(j, i, ss, ha='center', va='center', fontsize=fs,
                     bbox=dict(boxstyle='round', facecolor='white',alpha=0.75, edgecolor='black',linewidth=0.2), )
-    plt.colorbar(cs, cax=cax)
+    cbar = plt.colorbar(cs, cax=cax)
+    cbar.ax.tick_params(labelsize=fs)
     fig.savefig(''+str(path_and_filename_to_save_the_output)+'', dpi=500, bbox_inches='tight', facecolor='white')
     plt.show()
 
