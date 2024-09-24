@@ -196,8 +196,7 @@ def VIF(var, headss):
     vif_data["VIF"] = [variance_inflation_factor(X.values, i)
                               for i in range(len(X.columns))]
     print(vif_data)
-
-
+    return vif_data 
 
 #EXAMPLE FOR USING THE FUNCTION
 
