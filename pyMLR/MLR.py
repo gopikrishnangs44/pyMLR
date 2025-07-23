@@ -200,4 +200,28 @@ def VIF(var, headss):
 
 #EXAMPLE FOR USING THE FUNCTION
 
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.tools.tools import add_constant
 
+def calculate_vif(X):
+    # Add constant term for intercept
+    X = add_constant(X)
+    vif_data = pd.DataFrame()
+    vif_data['feature'] = X.columns
+    vif_data['VIF'] = [variance_inflation_factor(X.values, i)
+                       for i in range(X.shape[1])]
+    return vif_data.drop(index=0)  # drop 'const'
+
+def eliminate_high_vif(X, threshold=10.0):
+    while True:
+        vif_df = calculate_vif(X)
+        max_vif = vif_df['VIF'].max()
+        if max_vif > threshold:
+            drop_feature = vif_df.loc[vif_df['VIF'] == max_vif, 'feature'].values[0]
+            print(f"Removing '{drop_feature}' with VIF: {max_vif:.2f}")
+            X = X.drop(columns=drop_feature)
+        else:
+            break
+    return X, calculate_vif(X)
+
+X_clean, final_vif = eliminate_high_vif(X.T, threshold=15.0)
