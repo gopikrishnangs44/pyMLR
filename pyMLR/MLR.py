@@ -224,4 +224,4 @@ def eliminate_high_vif(X, threshold=10.0):
             break
     return X, calculate_vif(X)
 
-X_clean, final_vif = eliminate_high_vif(X.T, threshold=15.0)
+#X_clean, final_vif = eliminate_high_vif(X.T, threshold=15.0)
