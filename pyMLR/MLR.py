@@ -204,24 +204,42 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.tools.tools import add_constant
 
 def calculate_vif(X):
-    # Add constant term for intercept
     X = add_constant(X)
-    vif_data = pd.DataFrame()
-    vif_data['feature'] = X.columns
-    vif_data['VIF'] = [variance_inflation_factor(X.values, i)
-                       for i in range(X.shape[1])]
-    return vif_data.drop(index=0)  # drop 'const'
+    vif_df = pd.DataFrame()
+    vif_df['feature'] = X.columns
+    vif_df['VIF'] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+    return vif_df[vif_df['feature'] != 'const']
 
-def eliminate_high_vif(X, threshold=10.0):
+def exhaustive_vif_elimination(X, threshold=10.0):
+    X = X.copy()
+    history = []
+
     while True:
-        vif_df = calculate_vif(X)
-        max_vif = vif_df['VIF'].max()
-        if max_vif > threshold:
-            drop_feature = vif_df.loc[vif_df['VIF'] == max_vif, 'feature'].values[0]
-            print(f"Removing '{drop_feature}' with VIF: {max_vif:.2f}")
-            X = X.drop(columns=drop_feature)
-        else:
-            break
-    return X, calculate_vif(X)
+        vif_current = calculate_vif(X)
+        if vif_current['VIF'].max() < threshold:
+            break  # All VIFs acceptable
 
-#X_clean, final_vif = eliminate_high_vif(X.T, threshold=15.0)
+        best_feature = None
+        best_max_vif = float('inf')
+        best_vif_df = None
+
+        # Try removing each feature and see resulting max VIF
+        for feature in X.columns:
+            X_temp = X.drop(columns=[feature])
+            vif_temp = calculate_vif(X_temp)
+            max_vif = vif_temp['VIF'].max()
+
+            if max_vif < best_max_vif:
+                best_max_vif = max_vif
+                best_feature = feature
+                best_vif_df = vif_temp
+
+        print(f"Removing '{best_feature}' → Max VIF reduced to {best_max_vif:.2f}")
+        history.append((best_feature, best_max_vif))
+        X = X.drop(columns=[best_feature])
+
+    final_vif = calculate_vif(X)
+    return X, final_vif, history
+
+#X_final, vif_final, elimination_log = exhaustive_vif_elimination(X, threshold=10.0)
+
